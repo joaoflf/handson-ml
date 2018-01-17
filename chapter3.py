@@ -168,15 +168,15 @@ plot_digit(clean_digit)
 # Exercise 1
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score
-from sklearn.grid_search import RandomizedSearchCV
+from sklearn.model_selection import RandomizedSearchCV
 import numpy as np
 
-weights = ['uniform', 'distance']  # 10.0**np.arange(-5,4)
-numNeighbors = np.arange(5, 10)
+weights = ['uniform', 'distance']  
+numNeighbors = [3, 4, 5]
 param_grid = dict(weights=weights, n_neighbors=numNeighbors)
 
 
-grid = RandomizedSearchCV(KNeighborsClassifier(), param_grid, cv=3)
+grid = RandomizedSearchCV(KNeighborsClassifier(), param_grid, cv=3, n_iter=5)
 grid.fit(X_train, y_train)
 
 cross_val_score(grid, X_test, y_test, cv=3, scoring="accuracy")
@@ -185,10 +185,17 @@ cross_val_score(grid, X_test, y_test, cv=3, scoring="accuracy")
 #  Exercise 2
 from scipy.ndimage.interpolation import shift
 
-for i in range(X_train.shape[0]):
-    image = X_train[i]
-    np.append(X_train, shift(image, [1, 0], cval=0))
-    np.append(X_train, shift(image, [-1, 0], cval=0))
-    np.append(X_train, shift(image, [0, 1], cval=0))
-    np.append(X_train, shift(image, [0, -1], cval=0))
-    np.append(y_train,y_train[i],y_train[i],y_train[i],y_train[i])
+X_train_augumented = X_train.copy()
+y_train_augumented = y_train.copy() 
+
+
+for i in range(100):
+    image = X_train[i].reshape(28, 28)
+    X_train_augumented = np.append(X_train_augumented, shift(image, [1, 0],  cval=0, mode="constant").reshape([-1]))
+    X_train_augumented = np.append(X_train_augumented, shift(image, [-1, 0],  cval=0, mode="constant").reshape([-1]))
+    X_train_augumented = np.append(X_train_augumented, shift(image, [0, 1],  cval=0, mode="constant").reshape([-1]))
+    X_train_augumented = np.append(X_train_augumented, shift(image, [0, -1],  cval=0, mode="constant").reshape([-1]))
+    y_train_augumented = np.append(y_train_augumented,[y_train[i],y_train[i],y_train[i],y_train[i]])
+
+print(X_train_augumented.shape)
+print(y_train_augumented.shape)
