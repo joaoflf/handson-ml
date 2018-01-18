@@ -184,18 +184,35 @@ cross_val_score(grid, X_test, y_test, cv=3, scoring="accuracy")
 # %%
 #  Exercise 2
 from scipy.ndimage.interpolation import shift
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import cross_val_score
 
-X_train_augumented = X_train.copy()
-y_train_augumented = y_train.copy() 
+X_train_augumented = X_train.tolist()
+y_train_augumented = y_train.tolist()
 
-
-for i in range(100):
+for i in range(X_train.shape[0]):
     image = X_train[i].reshape(28, 28)
-    X_train_augumented = np.append(X_train_augumented, shift(image, [1, 0],  cval=0, mode="constant").reshape([-1]))
-    X_train_augumented = np.append(X_train_augumented, shift(image, [-1, 0],  cval=0, mode="constant").reshape([-1]))
-    X_train_augumented = np.append(X_train_augumented, shift(image, [0, 1],  cval=0, mode="constant").reshape([-1]))
-    X_train_augumented = np.append(X_train_augumented, shift(image, [0, -1],  cval=0, mode="constant").reshape([-1]))
-    y_train_augumented = np.append(y_train_augumented,[y_train[i],y_train[i],y_train[i],y_train[i]])
+    shift_up = shift(image, [-1, 0],  cval=0).reshape([-1])
+    shift_down = shift(image, [1, 0],  cval=0).reshape([-1])
+    shift_right = shift(image, [0, 1],  cval=0).reshape([-1])
+    shift_left = shift(image, [0, -1],  cval=0).reshape([-1])
 
-print(X_train_augumented.shape)
-print(y_train_augumented.shape)
+    X_train_augumented.append(shift_up)
+    X_train_augumented.append(shift_down)
+    X_train_augumented.append(shift_right)
+    X_train_augumented.append(shift_left)
+
+    y_train_augumented.append(y_train[i])
+    y_train_augumented.append(y_train[i])
+    y_train_augumented.append(y_train[i])
+    y_train_augumented.append(y_train[i])
+
+X_train_augumented = np.array(X_train_augumented)
+y_train_augumented = np.array(y_train_augumented)
+shuffle_index = np.random.permutation(60000)
+X_train_augumented, y_train_augumented = X_train_augumented[shuffle_index], y_train_augumented[shuffle_index]
+
+knn_clf = KNeighborsClassifier()
+knn_clf.fit(X_train_augumented, y_train_augumented)
+
+cross_val_score(knn_clf, X_test, y_test, cv=3, scoring="accuracy")
