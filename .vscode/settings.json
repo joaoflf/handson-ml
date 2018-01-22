@@ -1,3 +1,4 @@
 {
-  "python.pythonPath": "/Users/joaofernandes/anaconda2/envs/ml-book/bin/python"
+  "python.pythonPath": "/Users/joaofernandes/anaconda2/envs/ml-book/bin/python",
+  "python.linting.lintOnSave": true
 }
